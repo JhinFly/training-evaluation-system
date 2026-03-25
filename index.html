@@ -128,6 +128,9 @@
             }
         }
     </style>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database.js"></script>
 </head>
 <body>
     <div class="container">
@@ -278,14 +281,51 @@
     </div>
     
     <script>
+        // Firebase配置
+        const firebaseConfig = {
+            apiKey: "AIzaSyD3-9pZRs6xus_J3rHjzljH-TgF-ySoIaA",
+            authDomain: "training-evaluation-syst-7d481.firebaseapp.com",
+            databaseURL: "https://training-evaluation-syst-7d481-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "training-evaluation-syst-7d481",
+            storageBucket: "training-evaluation-syst-7d481.firebasestorage.app",
+            messagingSenderId: "96533712076",
+            appId: "1:96533712076:web:b825d1ac5d970da0744669",
+            measurementId: "G-QRQL88TSJC"
+        };
+
+        // 初始化Firebase
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        // 表单提交处理
         document.getElementById('evaluationForm').addEventListener('submit', function(e) {
             e.preventDefault();
             
-            // 模拟表单提交
-            setTimeout(function() {
-                document.getElementById('successMessage').style.display = 'block';
-                document.getElementById('evaluationForm').reset();
-            }, 500);
+            // 获取表单数据
+            const formData = {
+                trainName: document.getElementById('trainName').value,
+                participant: document.getElementById('participant').value,
+                department: document.getElementById('department').value,
+                date: document.getElementById('date').value,
+                content: document.querySelector('input[name="content"]:checked').value,
+                teacher: document.querySelector('input[name="teacher"]:checked').value,
+                environment: document.querySelector('input[name="environment"]:checked').value,
+                organization: document.querySelector('input[name="organization"]:checked').value,
+                effect: document.querySelector('input[name="effect"]:checked').value,
+                suggestions: document.getElementById('suggestions').value,
+                timestamp: firebase.database.ServerValue.TIMESTAMP
+            };
+            
+            // 保存数据到Firebase
+            database.ref('evaluations').push(formData)
+                .then(() => {
+                    document.getElementById('successMessage').style.display = 'block';
+                    document.getElementById('evaluationForm').reset();
+                })
+                .catch((error) => {
+                    console.error('Error saving data:', error);
+                    alert('提交失败，请重试');
+                });
         });
     </script>
 </body>

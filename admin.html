@@ -191,6 +191,10 @@
             }
         }
     </style>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js"></script>
 </head>
 <body>
     <div class="container">
@@ -266,114 +270,159 @@
     </div>
     
     <script>
-        // 模拟数据
-        const mockData = [
-            {
-                trainName: "安全生产培训",
-                participant: "张三",
-                department: "生产部",
-                date: "2024-01-15",
-                content: "非常满意",
-                teacher: "满意",
-                environment: "非常满意",
-                organization: "满意",
-                effect: "非常满意",
-                suggestions: "培训内容丰富，讲师讲解清晰"
-            },
-            {
-                trainName: "质量管理培训",
-                participant: "李四",
-                department: "质检部",
-                date: "2024-01-16",
-                content: "满意",
-                teacher: "非常满意",
-                environment: "一般",
-                organization: "满意",
-                effect: "满意",
-                suggestions: "希望增加更多实际案例分析"
-            }
-        ];
-        
+        // Firebase配置
+        const firebaseConfig = {
+            apiKey: "AIzaSyD3-9pZRs6xus_J3rHjzljH-TgF-ySoIaA",
+            authDomain: "training-evaluation-syst-7d481.firebaseapp.com",
+            databaseURL: "https://training-evaluation-syst-7d481-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "training-evaluation-syst-7d481",
+            storageBucket: "training-evaluation-syst-7d481.firebasestorage.app",
+            messagingSenderId: "96533712076",
+            appId: "1:96533712076:web:b825d1ac5d970da0744669",
+            measurementId: "G-QRQL88TSJC"
+        };
+
+        // 初始化Firebase
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+        const auth = firebase.auth();
+
         // 登录处理
         function handleLogin(event) {
             event.preventDefault();
-            const username = document.getElementById('username').value;
+            const email = document.getElementById('username').value;
             const password = document.getElementById('password').value;
             
-            // 简单验证（实际应用中应该使用更安全的验证方式）
-            if (username === 'admin' && password === 'admin123') {
+            auth.signInWithEmailAndPassword(email, password)
+                .then((userCredential) => {
+                    document.getElementById('loginForm').style.display = 'none';
+                    document.getElementById('dashboard').style.display = 'block';
+                    loadData();
+                })
+                .catch((error) => {
+                    alert('用户名或密码错误');
+                });
+        }
+
+        // 退出登录
+        function handleLogout() {
+            auth.signOut()
+                .then(() => {
+                    document.getElementById('dashboard').style.display = 'none';
+                    document.getElementById('loginForm').style.display = 'block';
+                });
+        }
+
+        // 加载数据
+        function loadData() {
+            // 监听数据变化
+            database.ref('evaluations').on('value', (snapshot) => {
+                const data = snapshot.val();
+                const evaluations = Object.values(data || {});
+                
+                // 更新统计数据
+                document.getElementById('totalEvaluations').textContent = evaluations.length;
+                
+                const verySatisfiedCount = evaluations.reduce((count, item) => {
+                    return count + (item.content === '非常满意' ? 1 : 0) +
+                           (item.teacher === '非常满意' ? 1 : 0) +
+                           (item.environment === '非常满意' ? 1 : 0) +
+                           (item.organization === '非常满意' ? 1 : 0) +
+                           (item.effect === '非常满意' ? 1 : 0);
+                }, 0);
+                document.getElementById('verySatisfied').textContent = verySatisfiedCount;
+                
+                const dissatisfiedCount = evaluations.reduce((count, item) => {
+                    return count + (item.content === '不满意' ? 1 : 0) +
+                           (item.teacher === '不满意' ? 1 : 0) +
+                           (item.environment === '不满意' ? 1 : 0) +
+                           (item.organization === '不满意' ? 1 : 0) +
+                           (item.effect === '不满意' ? 1 : 0);
+                }, 0);
+                document.getElementById('dissatisfied').textContent = dissatisfiedCount;
+                
+                // 计算平均满意度
+                if (evaluations.length > 0) {
+                    const totalScores = evaluations.reduce((total, item) => {
+                        const scoreMap = {
+                            '非常满意': 5,
+                            '满意': 4,
+                            '一般': 3,
+                            '不满意': 2
+                        };
+                        return total + (scoreMap[item.content] || 0) +
+                               (scoreMap[item.teacher] || 0) +
+                               (scoreMap[item.environment] || 0) +
+                               (scoreMap[item.organization] || 0) +
+                               (scoreMap[item.effect] || 0);
+                    }, 0);
+                    const averageScore = totalScores / (evaluations.length * 5);
+                    const averagePercentage = Math.round(averageScore * 100);
+                    document.getElementById('averageSatisfaction').textContent = `${averagePercentage}%`;
+                } else {
+                    document.getElementById('averageSatisfaction').textContent = '0%';
+                }
+                
+                // 更新表格数据
+                const tableBody = document.getElementById('tableBody');
+                tableBody.innerHTML = '';
+                
+                evaluations.forEach(item => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${item.trainName}</td>
+                        <td>${item.participant}</td>
+                        <td>${item.department}</td>
+                        <td>${item.date}</td>
+                        <td>${item.content}</td>
+                        <td>${item.teacher}</td>
+                        <td>${item.environment}</td>
+                        <td>${item.organization}</td>
+                        <td>${item.effect}</td>
+                        <td>${item.suggestions}</td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+            });
+        }
+
+        // 导出Excel
+        function exportToExcel() {
+            // 获取所有数据
+            database.ref('evaluations').once('value')
+                .then((snapshot) => {
+                    const data = snapshot.val();
+                    const evaluations = Object.values(data || {});
+                    
+                    let csvContent = "培训名称,参训人员,部门,培训日期,内容满意度,讲师满意度,环境满意度,组织满意度,效果满意度,意见与建议\n";
+                    
+                    evaluations.forEach(item => {
+                        csvContent += `${item.trainName},${item.participant},${item.department},${item.date},${item.content},${item.teacher},${item.environment},${item.organization},${item.effect},${item.suggestions}\n`;
+                    });
+                    
+                    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                    const link = document.createElement('a');
+                    const url = URL.createObjectURL(blob);
+                    link.setAttribute('href', url);
+                    link.setAttribute('download', '培训满意度评价数据.csv');
+                    link.style.visibility = 'hidden';
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                });
+        }
+
+        // 监听认证状态变化
+        auth.onAuthStateChanged((user) => {
+            if (user) {
                 document.getElementById('loginForm').style.display = 'none';
                 document.getElementById('dashboard').style.display = 'block';
                 loadData();
             } else {
-                alert('用户名或密码错误');
+                document.getElementById('dashboard').style.display = 'none';
+                document.getElementById('loginForm').style.display = 'block';
             }
-        }
-        
-        // 退出登录
-        function handleLogout() {
-            document.getElementById('dashboard').style.display = 'none';
-            document.getElementById('loginForm').style.display = 'block';
-        }
-        
-        // 加载数据
-        function loadData() {
-            // 更新统计数据
-            document.getElementById('totalEvaluations').textContent = mockData.length;
-            document.getElementById('verySatisfied').textContent = mockData.filter(item => 
-                item.content === '非常满意' || item.teacher === '非常满意' || 
-                item.environment === '非常满意' || item.organization === '非常满意' || 
-                item.effect === '非常满意'
-            ).length;
-            document.getElementById('dissatisfied').textContent = mockData.filter(item => 
-                item.content === '不满意' || item.teacher === '不满意' || 
-                item.environment === '不满意' || item.organization === '不满意' || 
-                item.effect === '不满意'
-            ).length;
-            document.getElementById('averageSatisfaction').textContent = '85%';
-            
-            // 更新表格数据
-            const tableBody = document.getElementById('tableBody');
-            tableBody.innerHTML = '';
-            
-            mockData.forEach(item => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${item.trainName}</td>
-                    <td>${item.participant}</td>
-                    <td>${item.department}</td>
-                    <td>${item.date}</td>
-                    <td>${item.content}</td>
-                    <td>${item.teacher}</td>
-                    <td>${item.environment}</td>
-                    <td>${item.organization}</td>
-                    <td>${item.effect}</td>
-                    <td>${item.suggestions}</td>
-                `;
-                tableBody.appendChild(row);
-            });
-        }
-        
-        // 导出Excel
-        function exportToExcel() {
-            // 简单的Excel导出功能
-            const data = mockData;
-            let csvContent = "培训名称,参训人员,部门,培训日期,内容满意度,讲师满意度,环境满意度,组织满意度,效果满意度,意见与建议\n";
-            
-            data.forEach(item => {
-                csvContent += `${item.trainName},${item.participant},${item.department},${item.date},${item.content},${item.teacher},${item.environment},${item.organization},${item.effect},${item.suggestions}\n`;
-            });
-            
-            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement('a');
-            const url = URL.createObjectURL(blob);
-            link.setAttribute('href', url);
-            link.setAttribute('download', '培训满意度评价数据.csv');
-            link.style.visibility = 'hidden';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        }
+        });
     </script>
 </body>
 </html>

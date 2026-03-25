@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>培训满意度综合评价表</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: white;
+            min-height: 100vh;
+        }
+        
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 30px;
+            font-size: 24px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #555;
+        }
+        
+        .form-group input[type="text"],
+        .form-group input[type="number"],
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        .form-group input[type="text"]:focus,
+        .form-group input[type="number"]:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.1);
+        }
+        
+        .radio-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .radio-option {
+            flex: 1 1 45%;
+            min-width: 120px;
+        }
+        
+        .radio-option input[type="radio"] {
+            margin-right: 5px;
+        }
+        
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+        
+        button {
+            width: 100%;
+            padding: 15px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-top: 20px;
+        }
+        
+        button:hover {
+            background-color: #2980b9;
+        }
+        
+        .success-message {
+            display: none;
+            text-align: center;
+            color: #27ae60;
+            font-weight: 500;
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #d4edda;
+            border-radius: 8px;
+        }
+        
+        @media (max-width: 480px) {
+            .container {
+                padding: 15px;
+            }
+            
+            h1 {
+                font-size: 20px;
+            }
+            
+            .radio-option {
+                flex: 1 1 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>培训满意度综合评价表</h1>
+        
+        <form id="evaluationForm">
+            <div class="form-group">
+                <label for="trainName">培训名称</label>
+                <input type="text" id="trainName" name="trainName" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="participant">参训人员</label>
+                <input type="text" id="participant" name="participant" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="department">部门</label>
+                <input type="text" id="department" name="department" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="date">培训日期</label>
+                <input type="text" id="date" name="date" placeholder="YYYY-MM-DD" required>
+            </div>
+            
+            <div class="form-group">
+                <label>培训内容满意度</label>
+                <div class="radio-group">
+                    <div class="radio-option">
+                        <input type="radio" id="content1" name="content" value="非常满意" required>
+                        <label for="content1">非常满意</label>
+                    </div>
+                    <div class="radio-option">
+                        <input type="radio" id="content2" name="content" value="满意">
+                        <label for="content2">满意</label>
+                    </div>
+                    <div class="radio-option">
+                        <input type="radio" id="content3" name="content" value="一般">
+                        <label for="content3">一般</label>
+                    </div>
+                    <div class="radio-option">
+                        <input type="radio" id="content4" name="content" value="不满意">
+                        <label for="content4">不满意</label>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label>培训讲师满意度</label>
+                <div class="radio-group">
+                    <div class="radio-option">
+                        <input type="radio" id="teacher1" name="teacher" value="非常满意" required>
+                        <label for="teacher1">非常满意</label>
+                    </div>
+                    <div class="radio-option">
+                        <input type="radio" id="teacher2" name="teacher" value="满意">
+                        <label for="teacher2">满意</label>
+                    </div>
+                    <div class="radio-option">
+                        <input type="radio" id="teacher3" name="teacher" value="一般">
+                        <label for="teacher3">一般</label>
+                    </div>
+                    <div class="radio-option">
+                        <input type="radio" id="teacher4" name="teacher" value="不满意">
+                        <label for="teacher4">不满意</label>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label>培训环境满意度</label>
+                <div class="radio-group">
+                    <div class="radio-option">
+                        <input type="radio" id="environment1" name="environment" value="非常满意" required>
+                        <label for="environment1">非常满意</label>
+                    </div>
+                    <div class="radio-option">
+                        <input type="radio" id="environment2" name="environment" value="满意">
+                        <label for="environment2">满意</label>
+                    </div>
+                    <div class="radio-option">
+                        <input type="radio" id="environment3" name="environment" value="一般">
+                        <label for="environment3">一般</label>
+                    </div>
+                    <div class="radio-option">
+                        <input type="radio" id="environment4" name="environment" value="不满意">
+                        <label for="environment4">不满意</label>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label>培训组织满意度</label>
+                <div class="radio-group">
+                    <div class="radio-option">
+                        <input type="radio" id="organization1" name="organization" value="非常满意" required>
+                        <label for="organization1">非常满意</label>
+                    </div>
+                    <div class="radio-option">
+                        <input type="radio" id="organization2" name="organization" value="满意">
+                        <label for="organization2">满意</label>
+                    </div>
+                    <div class="radio-option">
+                        <input type="radio" id="organization3" name="organization" value="一般">
+                        <label for="organization3">一般</label>
+                    </div>
+                    <div class="radio-option">
+                        <input type="radio" id="organization4" name="organization" value="不满意">
+                        <label for="organization4">不满意</label>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label>培训效果满意度</label>
+                <div class="radio-group">
+                    <div class="radio-option">
+                        <input type="radio" id="effect1" name="effect" value="非常满意" required>
+                        <label for="effect1">非常满意</label>
+                    </div>
+                    <div class="radio-option">
+                        <input type="radio" id="effect2" name="effect" value="满意">
+                        <label for="effect2">满意</label>
+                    </div>
+                    <div class="radio-option">
+                        <input type="radio" id="effect3" name="effect" value="一般">
+                        <label for="effect3">一般</label>
+                    </div>
+                    <div class="radio-option">
+                        <input type="radio" id="effect4" name="effect" value="不满意">
+                        <label for="effect4">不满意</label>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="suggestions">意见与建议</label>
+                <textarea id="suggestions" name="suggestions" placeholder="请输入您的意见与建议"></textarea>
+            </div>
+            
+            <button type="submit">提交评价</button>
+            
+            <div class="success-message" id="successMessage">
+                评价提交成功！感谢您的反馈。
+            </div>
+        </form>
+    </div>
+    
+    <script>
+        document.getElementById('evaluationForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // 模拟表单提交
+            setTimeout(function() {
+                document.getElementById('successMessage').style.display = 'block';
+                document.getElementById('evaluationForm').reset();
+            }, 500);
+        });
+    </script>
+</body>
+</html>
